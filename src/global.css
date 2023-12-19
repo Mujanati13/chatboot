@@ -1,0 +1,26 @@
+.swiper-button-next {
+    background-image: url('https://img.icons8.com/flat-round/64/circled-chevron-right.png');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center;
+  }
+  
+  .swiper-button-next::after {
+    display: none;
+  }
+
+  .swiper-button-prev {
+    background-image: url('https://img.icons8.com/flat-round/64/circled-chevron-right.png');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center;
+    transform: rotate(180deg);
+  }
+  
+  .swiper-button-prev::after {
+    display: none;
+  }
+
+  .swiper-pagination-bullet-active {
+    background-color: #000 !important;
+}
