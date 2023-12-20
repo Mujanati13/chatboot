@@ -301,10 +301,10 @@ export default function ChatBoot() {
                                   className=""
                                   style={{ fontSize: "10px" }}
                                 >
-                                  <img
+                                  {/* <img
                                     className="rounded-md object-cover w-80 h-40 z-0"
                                     src={Deafultimages}
-                                  />
+                                  /> */}
                                 </SwiperSlide>
                               )}
                             </Swiper>
@@ -524,10 +524,10 @@ export default function ChatBoot() {
                                     className=""
                                     style={{ fontSize: "10px" }}
                                   >
-                                    <img
+                                    {/* <img
                                       className="rounded-md object-cover w-80 h-40 z-0"
                                       src={Deafultimages}
-                                    />
+                                    /> */}
                                   </SwiperSlide>
                                 )}
                               </Swiper>
@@ -632,10 +632,10 @@ export default function ChatBoot() {
                                   className=""
                                   style={{ fontSize: "10px" }}
                                 >
-                                  <img
+                                  {/* <img
                                     className="rounded-md object-cover w-80 h-40 z-0"
                                     src={Deafultimages}
-                                  />
+                                  /> */}
                                 </SwiperSlide>
                               )}
                             </Swiper>
