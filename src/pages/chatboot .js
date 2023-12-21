@@ -3,7 +3,7 @@ import Header from "../components/header";
 import { Input, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
-import Logo from "../../src/images/logov1.png";
+// import Logo from "../../src/images/logov1.png";
 import Deafultimages from "../images/default_image.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
@@ -770,13 +770,13 @@ export default function ChatBoot() {
               How can I help you today
             </div>
             <div className="flex justify-center">
-              <img
+              {/* <img
                 className="mt-4 ease-in-out duration-300"
                 width={100}
                 height={100}
                 src={Logo}
                 alt=""
-              />
+              /> */}
             </div>
             <div className="md:mt-8 mt-14 flex md:flex-row flex-col items-center justify-between space-y-3">
               <div
