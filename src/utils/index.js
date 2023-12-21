@@ -90,3 +90,38 @@ export function getTextBetweenPhraseAndDot(text, phrase) {
     return null;
   }
 }
+
+export async function contextVerify(txt) {
+  const APIKEY = "AIzaSyAAYHTFDusWkD7c0aN9O--x8KI-8njYOWo"; // Replace with your actual API key
+  const body = {
+    prompt: {
+      text: txt + " : Please review the text above and respond 'yes' if it pertains to a journey, and the specified location exists.",
+    },
+    // context : '',
+  };
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=${APIKEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      const generatedText =
+        data?.candidates?.[0]?.output || "No generated text available";
+      console.log(generatedText);
+      return generatedText;
+    } else {
+      throw new Error("Request failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    // Handle errors here
+  }
+}

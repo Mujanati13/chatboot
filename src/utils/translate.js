@@ -51,7 +51,7 @@ export const handleTranslate = async (txt) => {
 };
 
 export async function Chatgpt(txt) {
-  const APIKEY = "AIzaSyAJewv2MpfI1ZnbxQSAN0JcYFXgIPb5kjI"; // Replace with your actual API key
+  const APIKEY = "AIzaSyAAYHTFDusWkD7c0aN9O--x8KI-8njYOWo"; // Replace with your actual API key
   const body = {
     prompt: {
       text: txt + " : give the name of hotel in the above text split by ,",
