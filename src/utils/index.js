@@ -92,7 +92,7 @@ export function getTextBetweenPhraseAndDot(text, phrase) {
 }
 
 export async function contextVerify(txt) {
-  const APIKEY = "AIzaSyAAYHTFDusWkD7c0aN9O--x8KI-8njYOWo"; // Replace with your actual API key
+  const APIKEY = "AIzaSyAZkjWQUwZehg84i2EGlWZBA0-8_B9Fv5U"; // Replace with your actual API key
   const body = {
     prompt: {
       text: txt + " : Please review the text above and respond 'yes' if it pertains to a journey, and the specified location exists.",

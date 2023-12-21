@@ -80,7 +80,7 @@ export default function ChatBoot() {
     setIsLoading(1); //Google bard first call
     const context = await contextVerify(TranslateTxt);
     if (context == "yes") {
-      const APIKEY = "AIzaSyAAYHTFDusWkD7c0aN9O--x8KI-8njYOWo"; // Replace with your actual API key
+      const APIKEY = "AIzaSyAZkjWQUwZehg84i2EGlWZBA0-8_B9Fv5U"; // Replace with your actual API key
       const body = {
         prompt: {
           text:
