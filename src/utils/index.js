@@ -31,7 +31,7 @@ export async function getImages(name) {
       languagecode: "en-us",
     },
     headers: {
-      "X-RapidAPI-Key": "52e056e34cmshb557e10a3143d38p11d6b7jsn847d96bee1af",
+      "X-RapidAPI-Key": "99c9034dd2msh7094b6fa0686d1dp14e200jsn05afb7b85f10",
       "X-RapidAPI-Host": "apidojo-booking-v1.p.rapidapi.com",
     },
   };

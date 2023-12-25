@@ -3,7 +3,7 @@ import Header from "../components/header";
 import { Input, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
-// import Logo from "../../src/images/logov1.png";
+import Logo from "../../src/images/logov1.png";
 import Deafultimages from "../images/default_image.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
@@ -76,7 +76,8 @@ export default function ChatBoot() {
         type: "user",
       },
     ]);
-    const TranslateTxt = await handleTranslate(textValue);
+    // const TranslateTxt = await handleTranslate(textValue);
+    const TranslateTxt = textValue
     setIsLoading(1); //Google bard first call
     const context = await contextVerify(TranslateTxt);
     if (context == "yes") {
@@ -136,7 +137,7 @@ export default function ChatBoot() {
           setIsLoading(3);
           // Create an array to store objects with hotel name and first image URL
           const imageURLsTable = [];
-          for (var i = 0; i < 0; i++) {
+          for (var i = 0; i < hotelList.length; i++) {
             const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
             const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
             // Create an object with hotel name and first image URL
@@ -415,7 +416,6 @@ export default function ChatBoot() {
   //
   const generateRandomText = async () => {
     setTextValue("");
-    console.log(handleDetectLanguage(RandomText));
     setContent((prevContent) => [
       ...prevContent,
       {
@@ -427,7 +427,7 @@ export default function ChatBoot() {
         type: "user",
       },
     ]);
-    const APIKEY = "AIzaSyAAYHTFDusWkD7c0aN9O--x8KI-8njYOWo"; // Replace with your actual API key
+    const APIKEY = "AIzaSyAZkjWQUwZehg84i2EGlWZBA0-8_B9Fv5U"; // Replace with your actual API key
     const body = {
       prompt: {
         text:
@@ -486,7 +486,7 @@ export default function ChatBoot() {
         const hotelList = txtwithout.split(",");
         const imageURLsTable = []; // Create an array to store objects with hotel name and first image URL
         setIsLoading(3);
-        for (var i = 0; i < 0; i++) {
+        for (var i = 0; i < hotelList.length; i++) {
           const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
           console.log(list);
           const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
@@ -604,7 +604,6 @@ export default function ChatBoot() {
             },
           ]);
         }
-        console.log(imageURLsTable);
         setContent([
           ...content,
           {
