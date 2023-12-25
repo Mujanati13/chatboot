@@ -3,7 +3,7 @@ import Header from "../components/header";
 import { Input, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
-import Logo from "../../src/images/logov1.png";
+// import Logo from "../../src/images/logov1.png";
 import Deafultimages from "../images/default_image.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
