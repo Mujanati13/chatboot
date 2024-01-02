@@ -1,5 +1,5 @@
 export async function Chatgpt2(txt) {
-  const API_KEY = "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";
+  const API_KEY = "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";
   const apiRequestBody = {
     model: "gpt-3.5-turbo",
     messages: [
@@ -33,7 +33,7 @@ export async function Chatgpt2(txt) {
 }
 
 export async function contextVerifyGPT(txt) {
-  const API_KEY = "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";
+  const API_KEY = "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";
   const apiRequestBody = {
     model: "gpt-3.5-turbo",
     messages: [
