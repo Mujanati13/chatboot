@@ -1,5 +1,5 @@
 export async function Chatgpt2(txt) {
-  const API_KEY = "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";
+  const apiKey = process.env.REACT_APP_API_KEY;
   const apiRequestBody = {
     model: "gpt-3.5-turbo",
     messages: [
@@ -13,7 +13,7 @@ export async function Chatgpt2(txt) {
     const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + API_KEY,
+        Authorization: "Bearer " + apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(apiRequestBody),
@@ -33,7 +33,7 @@ export async function Chatgpt2(txt) {
 }
 
 export async function contextVerifyGPT(txt) {
-  const API_KEY = "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";
+  const apiKey = process.env.REACT_APP_API_KEY;
   const apiRequestBody = {
     model: "gpt-3.5-turbo",
     messages: [
@@ -49,7 +49,7 @@ export async function contextVerifyGPT(txt) {
     const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + API_KEY,
+        Authorization: "Bearer " + apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(apiRequestBody),

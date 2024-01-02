@@ -11,6 +11,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "../global.css";
+
 import {
   contextVerify,
   getImageURLs,
@@ -445,7 +446,8 @@ export default function ChatBoot() {
     setIsLoading(1); //Google bard first call
     const context = await contextVerifyGPT(TranslateTxt);
     if (context == "yes" || context == "Yes") {
-      const API_KEY = "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";
+      const apiKey = process.env.REACT_APP_API_KEY;
+      console.log(process.env);
       const apiRequestBody = {
         model: "gpt-3.5-turbo",
         messages: [
@@ -465,7 +467,7 @@ export default function ChatBoot() {
           {
             method: "POST",
             headers: {
-              Authorization: "Bearer " + API_KEY,
+              Authorization: "Bearer " + apiKey,
               "Content-Type": "application/json",
             },
             body: JSON.stringify(apiRequestBody),
