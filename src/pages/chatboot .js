@@ -445,7 +445,7 @@ export default function ChatBoot() {
     setIsLoading(1); //Google bard first call
     const context = await contextVerifyGPT(TranslateTxt);
     if (context == "yes" || context == "Yes") {
-      const API_KEY = "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";
+      const API_KEY = "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";
       const apiRequestBody = {
         model: "gpt-3.5-turbo",
         messages: [
