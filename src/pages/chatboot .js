@@ -445,7 +445,7 @@ export default function ChatBoot() {
     setIsLoading(1); //Google bard first call
     const context = await contextVerifyGPT(TranslateTxt);
     if (context == "yes" || context == "Yes") {
-      const API_KEY = "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";
+      const API_KEY = "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";
       const apiRequestBody = {
         model: "gpt-3.5-turbo",
         messages: [
@@ -453,7 +453,7 @@ export default function ChatBoot() {
             role: "system",
             content:
               TranslateTxt +
-              " With Markdown Describe as a travel agency without directly stating its name and create travel itinerary for a particular destination 5 day. Include a list of two to 3 hotels with their names with brief descriptions, and one incorporate their respective images split by line",
+              " With Markdown and short answer Describe as a travel agency without directly stating its name and create travel itinerary for a particular destination 5 day. Include a list of two to 3 hotels with their names with brief descriptions, and one incorporate their respective images split by line",
           },
         ],
       };
