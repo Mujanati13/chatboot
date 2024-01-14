@@ -5,7 +5,7 @@ export async function Chatgpt2(txt) {
     messages: [
       {
         role: "system",
-        content: txt + " :give me only the name of hotel in the above text split by ,",
+        content: "give me the names of hotels in this text separated by commas. If not, return none :"+ txt,
       },
     ],
   };
@@ -41,7 +41,7 @@ export async function contextVerifyGPT(txt) {
         role: "system",
         content:
           txt +
-          " : Please review the text above and respond 'yes' if it pertains to a journey, and the specified location exists.",
+          " : Please review the text above and respond only with 'yes' if it pertains to a journey, and the specified location exists.",
       },
     ],
   };

@@ -9,9 +9,9 @@ async function getLongImage(code) {
       languagecode: "en-us",
     },
     headers: {
-      "X-RapidAPI-Key": "99c9034dd2msh7094b6fa0686d1dp14e200jsn05afb7b85f10",
-      "X-RapidAPI-Host": "apidojo-booking-v1.p.rapidapi.com",
-    },
+      'X-RapidAPI-Key': '443e1ee92dmshdafc2f515a5756dp1f9496jsn491f11ae1d72',
+      'X-RapidAPI-Host': 'apidojo-booking-v1.p.rapidapi.com'
+    }
   };
 
   try {
@@ -31,9 +31,9 @@ export async function getImages(name) {
       languagecode: "en-us",
     },
     headers: {
-      "X-RapidAPI-Key": "99c9034dd2msh7094b6fa0686d1dp14e200jsn05afb7b85f10",
-      "X-RapidAPI-Host": "apidojo-booking-v1.p.rapidapi.com",
-    },
+      'X-RapidAPI-Key': '443e1ee92dmshdafc2f515a5756dp1f9496jsn491f11ae1d72',
+      'X-RapidAPI-Host': 'apidojo-booking-v1.p.rapidapi.com'
+    }
   };
 
   try {
