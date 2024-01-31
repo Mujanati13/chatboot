@@ -807,7 +807,6 @@ export default function ChatBoot() {
 
   const handleSendRequest = async () => {
     if (textValue.length > 2) {
-      console.log(currentch);
       if (currentch == "0") {
         await generateText();
         scrollToBottom(); // Scroll after sending a message
@@ -906,13 +905,9 @@ export default function ChatBoot() {
                       src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                     />
                     <div className="font-normal text-sm">
-                      <div class="col-3">
-                        <div class="snippet" data-title="dot-flashing">
-                          <div class="stage">
-                            <div class="dot-flashing"></div>
-                          </div>
-                        </div>
-                      </div>
+                      Merci pour votre patience. Nous travaillons dur pour vous
+                      fournir les informations dont vous avez besoin. Restez à
+                      l'écoute !t
                     </div>
                   </div>
                 </div>
@@ -927,7 +922,7 @@ export default function ChatBoot() {
                       src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                     />
                     <div className="font-normal text-sm">
-                      Looking for hotel names
+                      À la recherche de noms d'hôtels
                     </div>
                   </div>
                 </div>
@@ -941,7 +936,9 @@ export default function ChatBoot() {
                       height={30}
                       src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                     />
-                    <div className="font-normal text-sm">Images processing</div>
+                    <div className="font-normal text-sm">
+                      Traitement d'images
+                    </div>
                   </div>
                 </div>
               </div>
