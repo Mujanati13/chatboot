@@ -129,7 +129,9 @@ export default function ChatBoot() {
         body: JSON.stringify({ thread: threadid, text: textValue }),
       });
       if (response.ok) {
+
         const data = await response.json();
+        console.log(data);
         //display the txt
         const generatedText = data.result || "No generated text available";
         setIsLoadingThread(0);
