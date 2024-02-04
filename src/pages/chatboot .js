@@ -94,8 +94,6 @@ export default function ChatBoot() {
       const timer = setTimeout(() => {
         setShowFirstDiv(false);
       }, 5000);
-      scrollToBottom();
-      return () => clearTimeout(timer);
     }
   }, [showFirstDivcount]);
 
@@ -547,7 +545,7 @@ export default function ChatBoot() {
                       className="rounded-lg md:mt-0 mt-1"
                       autoPlay
                       muted
-                      loop={true}
+                      loop
                     >
                       <source src={Video[Math.floor(Math.random()*3)]} type="video/mp4" />
                       Your browser does not support the video tag.
