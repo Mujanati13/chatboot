@@ -47,12 +47,15 @@ export default function ChatBoot() {
   async function Tread() {
     setIsLoadingThread(1);
     try {
-      const response = await fetch("https://chatbot-api-v1.onrender.com/get-thread", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://chatbot-api-v1.onrender.com/get-thread",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -119,22 +122,24 @@ export default function ChatBoot() {
 
     setShowFirstDiv(true);
     setIsLoading(1);
-    setShowFirstDivcount(Math.random() * 100);
-    try {
-      const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ thread: threadid, text: textValue }),
-      });
-      if (response.ok) {
 
+    try {
+      setShowFirstDivcount(Math.random() * 100);
+      const response = await fetch(
+        `https://chatbot-api-v1.onrender.com/api/v1/chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ thread: threadid, text: textValue }),
+        }
+      );
+      if (response.ok) {
         const data = await response.json();
         console.log(data);
         //display the txt
         const generatedText = data.result || "No generated text available";
-        setIsLoadingThread(0);
         setContent([
           ...content,
           {
@@ -158,7 +163,6 @@ export default function ChatBoot() {
             type: "generated",
           },
         ]);
-        setIsLoading(0);
         const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
         if (
           hotelnames == "none" ||
@@ -394,6 +398,7 @@ export default function ChatBoot() {
             },
           ]);
           setIsLoading(0);
+          setIsLoadingThread(0);
         }
       } else {
         setIsLoading(0);
