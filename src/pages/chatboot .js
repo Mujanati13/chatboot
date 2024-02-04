@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "../components/header";
-import { Input, message, Spin } from "antd";
+import { Input, message, Spin, Button } from "antd";
 import { SendOutlined, LoadingOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
-import Logo from "../../src/images/robot.png";
 import Deafultimages from "../images/default_image.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
@@ -21,16 +20,12 @@ import {
 } from "../utils";
 import { Link } from "react-router-dom";
 import { checkForTravelWords, getRandomCity } from "../utils/city";
-import {
-  Chatgpt,
-  handleDetectLanguage,
-  handleTranslate,
-} from "../utils/translate";
-import {
-  Chatgpt2,
-  contextVerifyGPT,
-  contextVerifyGPT2,
-} from "../utils/chatgpt";
+import { Chatgpt2 } from "../utils/chatgpt";
+
+import Video1 from "../video/video1.mp4";
+import Video2 from "../video/video2.mp4";
+import Video3 from "../video/video4.mp4";
+import Video4 from "../video/video5.mp4";
 
 export default function ChatBoot() {
   const [currentch, setAi] = useState(1); // 0 mean google bard and 1 mean chatgpt
@@ -43,6 +38,11 @@ export default function ChatBoot() {
   const [content, setContent] = useState([]);
   const [threadid, setthreadid] = useState([]);
   const bottomRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+  const videoRef = useRef(null);
+  const [showFirstDiv, setShowFirstDiv] = useState(true);
+  const [showFirstDivcount, setShowFirstDivcount] = useState(0);
+  const Video = [Video1, Video2, Video3, Video4];
 
   async function Tread() {
     setIsLoadingThread(1);
@@ -62,10 +62,14 @@ export default function ChatBoot() {
       setIsLoadingThread(0);
     } catch (error) {}
   }
-
   useEffect(() => {
     Tread();
   }, []);
+
+  function handleResi() {
+    setContent([]);
+    Tread();
+  }
 
   var currentChat = [0];
   function handleAIselected(e) {
@@ -86,13 +90,22 @@ export default function ChatBoot() {
   };
 
   useEffect(() => {
+    if (showFirstDiv) {
+      const timer = setTimeout(() => {
+        setShowFirstDiv(false);
+      }, 5000);
+      scrollToBottom();
+      return () => clearTimeout(timer);
+    }
+  }, [showFirstDivcount]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [content]);
 
-  const generateText = async () => {
+  const generateTextChatgpt = async () => {
     setTextValue("");
-    scrollToBottom(); // Scroll after sending a message
-    // console.log(handleDetectLanguage("hello world"));
+    scrollToBottom();
     setContent((prevContent) => [
       ...prevContent,
       {
@@ -104,63 +117,57 @@ export default function ChatBoot() {
         type: "user",
       },
     ]);
-    // const TranslateTxt = await handleTranslate(textValue);
-    const TranslateTxt = textValue;
-    setIsLoading(1); //Google bard first call
-    const context = await contextVerify(TranslateTxt);
-    if (context == "yes") {
-      const APIKEY = "AIzaSyAZkjWQUwZehg84i2EGlWZBA0-8_B9Fv5U"; // Replace with your actual API key
-      const body = {
-        prompt: {
-          text:
-            TranslateTxt +
-            "Describe as a travel agency without directly stating its name and create travel itinerary for a particular destination 5 day. Include a list of two to 3 hotels with their names with brief descriptions, and one incorporate their respective images split by line",
+
+    setShowFirstDiv(true);
+    setIsLoading(1);
+    setShowFirstDivcount(Math.random() * 100);
+    try {
+      const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      };
-      try {
-        setIsLoading(1); //Google bard first call
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=${APIKEY}`,
+        body: JSON.stringify({ thread: threadid, text: textValue }),
+      });
+      if (response.ok) {
+        console.log("end count");
+        const data = await response.json();
+        //display the txt
+        const generatedText = data.result || "No generated text available";
+        setContent([
+          ...content,
           {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          //display the txt
-          setIsLoading(2);
-          const generatedText =
-            data?.candidates?.[0]?.output || "No generated text available";
-          setContent([
-            ...content,
-            {
-              text: (
-                <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                  {textValue}
-                </div>
-              ),
-              type: "user",
-            },
-            {
-              text: (
-                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
-                  {
-                    <ReactMarkdown
-                      children={removeTextBetweenCurlyBrackets(generatedText)}
-                    />
-                  }
-                </div>
-              ),
-              type: "generated",
-            },
-          ]);
-          const hotelnames = await Chatgpt(generatedText.toString()); //Google start looking for hotel names
-          const txtwithout = hotelnames.replaceAll("*", "");
-          const hotelList = txtwithout.split(",");
+            text: (
+              <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
+                {textValue}
+              </div>
+            ),
+            type: "user",
+          },
+          {
+            text: (
+              <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
+                {
+                  <ReactMarkdown
+                    children={removeTextBetweenCurlyBrackets(generatedText)}
+                  />
+                }
+              </div>
+            ),
+            type: "generated",
+          },
+        ]);
+        setIsLoading(0);
+        const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
+        if (
+          hotelnames == "none" ||
+          hotelnames == undefined ||
+          hotelnames == "None"
+        ) {
+          setIsLoading(0);
+        } else {
+          const hotelList = hotelnames.split(",");
+          console.log(hotelList);
           setIsLoading(3);
           // Create an array to store objects with hotel name and first image URL
           const imageURLsTable = [];
@@ -386,37 +393,14 @@ export default function ChatBoot() {
             },
           ]);
           setIsLoading(0);
-        } else {
-          setIsLoading(0);
-          throw new Error("Request failed");
         }
-      } catch (error) {
-        console.log(error);
+      } else {
         setIsLoading(0);
-        setContent([
-          ...content,
-          {
-            text: (
-              <div className="w-full bg-slate-100 p-3 mt-2 rounded-md">
-                {textValue}
-              </div>
-            ),
-            type: "user",
-          },
-          {
-            text: (
-              <div className="w-full bg-red-100 p-3 mt-2 rounded-md  text-black">
-                Error while retrieving response
-              </div>
-            ),
-            type: "generated",
-          },
-        ]);
-        console.error("Error:", error);
-        // Handle errors here
+        throw new Error("Request failed");
       }
-    } else {
-      setIsLoading(0); //Google bard first call
+    } catch (error) {
+      console.log(error);
+      setIsLoading(0);
       setContent([
         ...content,
         {
@@ -429,387 +413,21 @@ export default function ChatBoot() {
         },
         {
           text: (
-            <div className="w-full bg-blue-100 p-3 mt-2 rounded-md text-black">
-              Apologies, we're solely a chatbot dedicated to answering
-              travel-related questions{" "}
+            <div className="w-full bg-red-100 p-3 mt-2 rounded-md  text-black">
+              Error while retrieving response
             </div>
           ),
           type: "generated",
         },
       ]);
-    }
-  };
-
-  const generateTextChatgpt = async () => {
-    setTextValue("");
-    scrollToBottom();
-    setContent((prevContent) => [
-      ...prevContent,
-      {
-        text: (
-          <div className="w-full m-auto bg-gray-100 p-3  mt-2 rounded-md">
-            {textValue}
-          </div>
-        ),
-        type: "user",
-      },
-    ]);
-
-    const TranslateTxt = textValue;
-    setIsLoading(1); //Google bard first call
-    // const context = await contextVerifyGPT(TranslateTxt);
-    if (/*context == "yes" || context == "Yes"*/ true) {
-      const apiKey = process.env.REACT_APP_API_KEY;
-
-      // const apiRequestBody = {
-      //   model: "gpt-3.5-turbo",
-      //   messages: [
-      //     {
-      //       role: "system",
-      //       content:
-      //         TranslateTxt +
-      //         " Using Markdown and in French, provide a brief description of a travel agency without explicitly mentioning its name. Additionally, create a five-day travel itinerary for a specific destination. Include a list of two to three hotels with their names and brief descriptions.",
-      //     },
-      //   ],
-      // };
-
-      try {
-        setIsLoading(1); //Google bard first call
-        const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ thread: threadid, text: TranslateTxt }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          //display the txt
-          const generatedText = data.result || "No generated text available";
-          setContent([
-            ...content,
-            {
-              text: (
-                <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                  {textValue}
-                </div>
-              ),
-              type: "user",
-            },
-            {
-              text: (
-                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
-                  {
-                    <ReactMarkdown
-                      children={removeTextBetweenCurlyBrackets(generatedText)}
-                    />
-                  }
-                </div>
-              ),
-              type: "generated",
-            },
-          ]);
-          // looking for hotels name if it availble
-          const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
-          console.log(hotelnames);
-          setIsLoading(0);
-          if (
-            hotelnames == "none" ||
-            hotelnames == undefined ||
-            hotelnames == "None"
-          ) {
-            setIsLoading(0);
-          } else {
-            const hotelList = hotelnames.split(",");
-            console.log(hotelList);
-            setIsLoading(3);
-            // Create an array to store objects with hotel name and first image URL
-            const imageURLsTable = [];
-            for (var i = 0; i < hotelList.length; i++) {
-              const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
-              const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
-              // Create an object with hotel name and first image URL
-              const entry = {
-                name: hotelName,
-                url: list,
-              };
-              // Push the entry into the imageURLsTable array
-              imageURLsTable.push(entry);
-              setContent([
-                ...content,
-                {
-                  text: (
-                    <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                      {textValue}
-                    </div>
-                  ),
-                  type: "user",
-                },
-                {
-                  text: (
-                    <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md">
-                      {
-                        <ReactMarkdown
-                          children={removeTextBetweenCurlyBrackets(
-                            generatedText
-                          )}
-                        />
-                      }
-                      <div className="mt-4">
-                        {imageURLsTable.length > 0 &&
-                          imageURLsTable.map((hotel) => (
-                            <div
-                              className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
-                              key={hotel.name}
-                            >
-                              {hotel && hotel.name && hotel.name.length > 1 ? (
-                                <div className="w-80 h-40">
-                                  <Swiper
-                                    pagination={{
-                                      type: "fraction",
-                                    }}
-                                    navigation={true}
-                                    modules={[Pagination, Navigation]}
-                                    className="mySwiper"
-                                  >
-                                    {hotel.url && hotel.url.length > 1 ? (
-                                      hotel.url.map((url, index) => (
-                                        <SwiperSlide
-                                          className=""
-                                          style={{ fontSize: "10px" }}
-                                        >
-                                          <img
-                                            className="rounded-md object-cover w-80 h-40 z-0"
-                                            src={`https://cf.bstatic.com${url}`}
-                                            alt={`Image ${index}`}
-                                          />
-                                        </SwiperSlide>
-                                      ))
-                                    ) : (
-                                      <SwiperSlide
-                                        className=""
-                                        style={{ fontSize: "10px" }}
-                                      >
-                                        <img
-                                          className="rounded-md object-cover w-80 h-40 z-0"
-                                          src={Deafultimages}
-                                        />
-                                      </SwiperSlide>
-                                    )}
-                                  </Swiper>
-                                </div>
-                              ) : (
-                                <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
-                                  We encountered an error while retrieving
-                                  images. Please try again with the same search
-                                  query.{" "}
-                                </div>
-                              )}
-                              {hotel.name && hotel.name.length > 1 ? (
-                                <div className="flex flex-col space-y-2">
-                                  <div className="font-medium text-base text-black mt-1">
-                                    {hotel.name}
-                                  </div>
-                                  <div className="font-light text-base text-black">
-                                    {getTextBetweenPhraseAndDot(
-                                      generatedText,
-                                      hotel.name
-                                    )}
-                                  </div>
-                                  <div>
-                                    <a
-                                      className="font-normal text-sm text-blue-500 flex items-center space-x-1"
-                                      href={`https://www.google.com/search?q=booking ${hotel.name}`}
-                                      target="_blank"
-                                    >
-                                      <div>open in Booking.com</div>
-                                      <img
-                                        width="14"
-                                        height="14"
-                                        src="https://img.icons8.com/ios-glyphs/30/external-link.png"
-                                        alt="external-link"
-                                      />
-                                    </a>
-                                  </div>
-                                </div>
-                              ) : (
-                                ""
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  ),
-                  type: "generated",
-                },
-              ]);
-            }
-            setContent([
-              ...content,
-              {
-                text: (
-                  <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                    {textValue}
-                  </div>
-                ),
-                type: "user",
-              },
-              {
-                text: (
-                  <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md  text-black">
-                    {
-                      <ReactMarkdown
-                        children={removeTextBetweenCurlyBrackets(generatedText)}
-                      />
-                    }
-                    <div className="mt-4">
-                      {imageURLsTable.length > 0 &&
-                        imageURLsTable.map((hotel) => (
-                          <div
-                            className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
-                            key={hotel.name}
-                          >
-                            {hotel && hotel.name && hotel.name.length > 1 ? (
-                              <div className="w-80 h-40">
-                                <Swiper
-                                  pagination={{
-                                    type: "fraction",
-                                  }}
-                                  navigation={true}
-                                  modules={[Pagination, Navigation]}
-                                  className="mySwiper"
-                                >
-                                  {hotel.url && hotel.url.length > 1 ? (
-                                    hotel.url.map((url, index) => (
-                                      <SwiperSlide
-                                        className=""
-                                        style={{ fontSize: "10px" }}
-                                      >
-                                        <img
-                                          className="rounded-md object-cover w-80 h-40 z-0"
-                                          src={`https://cf.bstatic.com${url}`}
-                                          alt={`Image ${index}`}
-                                        />
-                                      </SwiperSlide>
-                                    ))
-                                  ) : (
-                                    <SwiperSlide
-                                      className=""
-                                      style={{ fontSize: "10px" }}
-                                    >
-                                      <img
-                                        className="rounded-md object-cover w-80 h-40 z-0"
-                                        src={Deafultimages}
-                                      />
-                                    </SwiperSlide>
-                                  )}
-                                </Swiper>
-                              </div>
-                            ) : (
-                              <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
-                                We encountered an error while retrieving images.
-                                Please try again with the same search query.{" "}
-                              </div>
-                            )}
-                            {hotel.name && hotel.name.length > 1 ? (
-                              <div className="flex flex-col space-y-2">
-                                <div className="font-medium text-base text-black mt-1">
-                                  {hotel.name}
-                                </div>
-                                <div className="font-light text-base text-black">
-                                  {getTextBetweenPhraseAndDot(
-                                    generatedText,
-                                    hotel.name
-                                  )}
-                                </div>
-                                <div>
-                                  <a
-                                    className="font-normal text-sm text-blue-500 flex items-center space-x-1"
-                                    href={`https://www.google.com/search?q=booking ${hotel.name}`}
-                                    target="_blank"
-                                  >
-                                    <div>open in Booking.com</div>
-                                    <img
-                                      width="14"
-                                      height="14"
-                                      src="https://img.icons8.com/ios-glyphs/30/external-link.png"
-                                      alt="external-link"
-                                    />
-                                  </a>
-                                </div>
-                              </div>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                ),
-                type: "generated",
-              },
-            ]);
-            setIsLoading(0);
-          }
-        } else {
-          setIsLoading(0);
-          throw new Error("Request failed");
-        }
-      } catch (error) {
-        console.log(error);
-        setIsLoading(0);
-        setContent([
-          ...content,
-          {
-            text: (
-              <div className="w-full bg-slate-100 p-3 mt-2 rounded-md">
-                {textValue}
-              </div>
-            ),
-            type: "user",
-          },
-          {
-            text: (
-              <div className="w-full bg-red-100 p-3 mt-2 rounded-md  text-black">
-                Error while retrieving response
-              </div>
-            ),
-            type: "generated",
-          },
-        ]);
-        console.error("Error:", error);
-        // Handle errors here
-      }
-    } else {
-      setIsLoading(0); //Google bard first call
-      setContent([
-        ...content,
-        {
-          text: (
-            <div className="w-full bg-slate-100 p-3 mt-2 rounded-md">
-              {textValue}
-            </div>
-          ),
-          type: "user",
-        },
-        {
-          text: (
-            <div className="w-full bg-blue-100 p-3 mt-2 rounded-md text-black">
-              Apologies, we're solely a chatbot dedicated to answering
-              travel-related questions{" "}
-            </div>
-          ),
-          type: "generated",
-        },
-      ]);
+      console.error("Error:", error);
+      // Handle errors here
     }
   };
 
   const handleSendRequest = async () => {
     if (textValue.length > 2) {
       if (currentch == "0") {
-        await generateText();
-        scrollToBottom(); // Scroll after sending a message
       } else if (currentch == "1") {
         await generateTextChatgpt();
         scrollToBottom(); // Scroll after sending a message
@@ -897,20 +515,48 @@ export default function ChatBoot() {
             )}
             {isLoading == 1 ? (
               <div className="">
-                <div>
-                  <div className="animate-pulse bg-blue-100 h-20 mt-2 rounded-md p-4 flex items-center space-x-6">
-                    <img
-                      width={30}
-                      height={30}
-                      src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
-                    />
-                    <div className="font-normal text-sm">
-                      Merci pour votre patience. Nous travaillons dur pour vous
-                      fournir les informations dont vous avez besoin. Restez à
-                      l'écoute !t
+                {showFirstDiv ? (
+                  <div>
+                    <div className="mt-2 rounded-md border border-gray-200 p-2 pl-3 flex flex-row space-y-0 items-center space-x-3">
+                      <img
+                        width={40}
+                        height={40}
+                        src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
+                      />
+                      <div className="md:animate-charcter animate-charcter text-black mt-5 animate-pulse">
+                        <span>Votre réponse a été générée</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="mt-2 border border-gray-200 flex md:flex-row flex-col md:space-y-0 space-y-1 items-start md:space-x-5 md:p-3 p-1">
+                    <div className="flex items-center space-x-1">
+                      <img
+                        width={40}
+                        height={40}
+                        src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
+                      />
+                      <p className="animate-charcter md:hidden">
+                        Votre réponse a été générée
+                      </p>
+                    </div>
+                    {loading && <div className="loading-animation"></div>}
+                    <video
+                      ref={videoRef}
+                      width={400}
+                      className="rounded-lg md:mt-0 mt-1"
+                      autoPlay
+                      muted
+                      loop={true}
+                    >
+                      <source src={Video[Math.floor(Math.random()*3)]} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <p className="animate-charcter2 md:block hidden">
+                      Votre réponse a été générée <br />
+                    </p>
+                  </div>
+                )}
               </div>
             ) : isLoading == 2 ? (
               <div className="w-full">
@@ -921,7 +567,7 @@ export default function ChatBoot() {
                       height={30}
                       src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                     />
-                    <div className="font-normal text-sm">
+                    <div className="font-normal text-sm animate-charcter">
                       À la recherche de noms d'hôtels
                     </div>
                   </div>
@@ -947,25 +593,35 @@ export default function ChatBoot() {
             )}
             <div ref={bottomRef} />
           </div>
-          <div className="z-50  fixed bottom-0 w-full h-16 pr-2 pl-2 md:pl-60 md:pr-64 bg-white">
-            <Input
-              classNames="shadow-lg"
-              onKeyPress={(e) => e.key === "Enter" && handleSendRequest()}
-              disabled={isLoading}
-              value={textValue}
-              onChange={handleText}
-              className="h-10 text-lg"
-              placeholder="Type something..."
-              suffix={
-                <SendOutlined
-                  onClick={handleSendRequest}
-                  className="cursor-pointer"
-                />
-              }
-            />
-          </div>
         </div>
       )}
+      <div className="z-50  fixed bottom-0 w-full h-16 pr-2 pl-2 md:pl-60 md:pr-64 bg-white">
+        <div className="flex items-center space-x-2">
+          <Input
+            classNames="shadow-lg"
+            onKeyPress={(e) => e.key === "Enter" && handleSendRequest()}
+            disabled={isLoading || isLoadingThread == 1}
+            value={textValue}
+            onChange={handleText}
+            className="h-10 text-lg"
+            placeholder="Type something..."
+            suffix={
+              <SendOutlined
+                onClick={handleSendRequest}
+                className="cursor-pointer"
+              />
+            }
+          />
+          <Button
+            disabled={isLoading || isLoadingThread == 1}
+            onClick={handleResi}
+            loading={false}
+            className="h-10 md:text-lg hover:border-gray-600 bg-green-300 text-white cursor-pointer border border-gray-400"
+          >
+            Réinitialiser
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
