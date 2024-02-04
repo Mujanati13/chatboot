@@ -90,13 +90,13 @@ export default function ChatBoot() {
     }
   };
 
-  useEffect(() => {
-    if (showFirstDiv) {
-      const timer = setTimeout(() => {
-        setShowFirstDiv(false);
-      }, 5000);
-    }
-  }, [showFirstDivcount]);
+  // useEffect(() => {
+  //   if (showFirstDiv) {
+  //     const timer = setTimeout(() => {
+  //       setShowFirstDiv(false);
+  //     }, 5000);
+  //   }
+  // }, [showFirstDivcount]);
 
   useEffect(() => {
     scrollToBottom();
