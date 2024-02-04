@@ -47,15 +47,12 @@ export default function ChatBoot() {
   async function Tread() {
     setIsLoadingThread(1);
     try {
-      const response = await fetch(
-        "https://chatbot-api-v1.onrender.com/get-thread",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch("https://chatbot-api-v1.onrender.com/get-thread", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -93,19 +90,20 @@ export default function ChatBoot() {
     }
   };
 
-  // useEffect(() => {
-  //   if (showFirstDiv) {
-  //     const timer = setTimeout(() => {
-  //       setShowFirstDiv(false);
-  //     }, 5000);
-  //   }
-  // }, [showFirstDivcount]);
+  useEffect(() => {
+    if (showFirstDiv) {
+      const timer = setTimeout(() => {
+        setShowFirstDiv(false);
+      }, 5000);
+    }
+  }, [showFirstDivcount]);
 
   useEffect(() => {
     scrollToBottom();
   }, [content]);
 
-  const generateTextChatgpt = async () => {
+  async function generateTextChatgpt() {
+    console.log("start");
     setTextValue("");
     scrollToBottom();
     setContent((prevContent) => [
@@ -119,25 +117,23 @@ export default function ChatBoot() {
         type: "user",
       },
     ]);
-
     setShowFirstDiv(true);
     setIsLoading(1);
     setShowFirstDivcount(Math.random() * 100);
-    const response = await fetch(
-      `https://chatbot-api-v1.onrender.com/api/v1/chat`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ thread: threadid, text: textValue }),
-      }
-    );
+    console.log("start 2");
+    const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ thread: threadid, text: textValue }),
+    });
     if (response.ok) {
       const data = await response.json();
       console.log(data);
       //display the txt
       const generatedText = data.result || "No generated text available";
+      setIsLoading(0);
       setContent([
         ...content,
         {
@@ -402,7 +398,7 @@ export default function ChatBoot() {
       setIsLoading(0);
       throw new Error("Request failed");
     }
-  };
+  }
 
   const handleSendRequest = async () => {
     if (textValue.length > 2) {
@@ -494,7 +490,7 @@ export default function ChatBoot() {
             )}
             {isLoading == 1 ? (
               <div className="">
-                {false ? (
+                {showFirstDiv ? (
                   <div>
                     <div className="mt-2 rounded-md border border-gray-200 p-2 pl-3 flex flex-row space-y-0 items-center space-x-3">
                       <img
