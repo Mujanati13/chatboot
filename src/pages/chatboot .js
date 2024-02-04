@@ -62,6 +62,7 @@ export default function ChatBoot() {
       setIsLoadingThread(0);
     } catch (error) {}
   }
+
   useEffect(() => {
     Tread();
   }, []);
@@ -128,10 +129,10 @@ export default function ChatBoot() {
         body: JSON.stringify({ thread: threadid, text: textValue }),
       });
       if (response.ok) {
-        console.log("end count");
         const data = await response.json();
         //display the txt
         const generatedText = data.result || "No generated text available";
+        setIsLoadingThread(0);
         setContent([
           ...content,
           {
@@ -513,7 +514,7 @@ export default function ChatBoot() {
             )}
             {isLoading == 1 ? (
               <div className="">
-                {showFirstDiv ? (
+                {false ? (
                   <div>
                     <div className="mt-2 rounded-md border border-gray-200 p-2 pl-3 flex flex-row space-y-0 items-center space-x-3">
                       <img
@@ -547,7 +548,10 @@ export default function ChatBoot() {
                       muted
                       loop
                     >
-                      <source src={Video[Math.floor(Math.random()*3)]} type="video/mp4" />
+                      <source
+                        src={Video[Math.floor(Math.random() * 3)]}
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </video>
                     <p className="animate-charcter2 md:block hidden">
