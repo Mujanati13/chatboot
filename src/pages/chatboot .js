@@ -122,176 +122,68 @@ export default function ChatBoot() {
 
     setShowFirstDiv(true);
     setIsLoading(1);
-
-    try {
-      setShowFirstDivcount(Math.random() * 100);
-      const response = await fetch(
-        `https://chatbot-api-v1.onrender.com/api/v1/chat`,
+    setShowFirstDivcount(Math.random() * 100);
+    const response = await fetch(
+      `https://chatbot-api-v1.onrender.com/api/v1/chat`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ thread: threadid, text: textValue }),
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      //display the txt
+      const generatedText = data.result || "No generated text available";
+      setContent([
+        ...content,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ thread: threadid, text: textValue }),
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        //display the txt
-        const generatedText = data.result || "No generated text available";
-        setContent([
-          ...content,
-          {
-            text: (
-              <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                {textValue}
-              </div>
-            ),
-            type: "user",
-          },
-          {
-            text: (
-              <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
-                {
-                  <ReactMarkdown
-                    children={removeTextBetweenCurlyBrackets(generatedText)}
-                  />
-                }
-              </div>
-            ),
-            type: "generated",
-          },
-        ]);
-        const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
-        if (
-          hotelnames == "none" ||
-          hotelnames == undefined ||
-          hotelnames == "None"
-        ) {
-          setIsLoading(0);
-        } else {
-          const hotelList = hotelnames.split(",");
-          console.log(hotelList);
-          setIsLoading(3);
-          // Create an array to store objects with hotel name and first image URL
-          const imageURLsTable = [];
-          for (var i = 0; i < hotelList.length; i++) {
-            const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
-            const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
-            // Create an object with hotel name and first image URL
-            const entry = {
-              name: hotelName,
-              url: list,
-            };
-            // Push the entry into the imageURLsTable array
-            imageURLsTable.push(entry);
-            setContent([
-              ...content,
+          text: (
+            <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
+              {textValue}
+            </div>
+          ),
+          type: "user",
+        },
+        {
+          text: (
+            <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
               {
-                text: (
-                  <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                    {textValue}
-                  </div>
-                ),
-                type: "user",
-              },
-              {
-                text: (
-                  <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md">
-                    {
-                      <ReactMarkdown
-                        children={removeTextBetweenCurlyBrackets(generatedText)}
-                      />
-                    }
-                    <div className="mt-4">
-                      {imageURLsTable.length > 0 &&
-                        imageURLsTable.map((hotel) => (
-                          <div
-                            className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
-                            key={hotel.name}
-                          >
-                            {hotel && hotel.name && hotel.name.length > 1 ? (
-                              <div className="w-80 h-40">
-                                <Swiper
-                                  pagination={{
-                                    type: "fraction",
-                                  }}
-                                  navigation={true}
-                                  modules={[Pagination, Navigation]}
-                                  className="mySwiper"
-                                >
-                                  {hotel.url && hotel.url.length > 1 ? (
-                                    hotel.url.map((url, index) => (
-                                      <SwiperSlide
-                                        className=""
-                                        style={{ fontSize: "10px" }}
-                                      >
-                                        <img
-                                          className="rounded-md object-cover w-80 h-40 z-0"
-                                          src={`https://cf.bstatic.com${url}`}
-                                          alt={`Image ${index}`}
-                                        />
-                                      </SwiperSlide>
-                                    ))
-                                  ) : (
-                                    <SwiperSlide
-                                      className=""
-                                      style={{ fontSize: "10px" }}
-                                    >
-                                      <img
-                                        className="rounded-md object-cover w-80 h-40 z-0"
-                                        src={Deafultimages}
-                                      />
-                                    </SwiperSlide>
-                                  )}
-                                </Swiper>
-                              </div>
-                            ) : (
-                              <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
-                                We encountered an error while retrieving images.
-                                Please try again with the same search query.{" "}
-                              </div>
-                            )}
-                            {hotel.name && hotel.name.length > 1 ? (
-                              <div className="flex flex-col space-y-2">
-                                <div className="font-medium text-base text-black mt-1">
-                                  {hotel.name}
-                                </div>
-                                <div className="font-light text-base text-black">
-                                  {getTextBetweenPhraseAndDot(
-                                    generatedText,
-                                    hotel.name
-                                  )}
-                                </div>
-                                <div>
-                                  <a
-                                    className="font-normal text-sm text-blue-500 flex items-center space-x-1"
-                                    href={`https://www.google.com/search?q=booking ${hotel.name}`}
-                                    target="_blank"
-                                  >
-                                    <div>open in Booking.com</div>
-                                    <img
-                                      width="14"
-                                      height="14"
-                                      src="https://img.icons8.com/ios-glyphs/30/external-link.png"
-                                      alt="external-link"
-                                    />
-                                  </a>
-                                </div>
-                              </div>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                ),
-                type: "generated",
-              },
-            ]);
-          }
+                <ReactMarkdown
+                  children={removeTextBetweenCurlyBrackets(generatedText)}
+                />
+              }
+            </div>
+          ),
+          type: "generated",
+        },
+      ]);
+      const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
+      if (
+        hotelnames == "none" ||
+        hotelnames == undefined ||
+        hotelnames == "None"
+      ) {
+        setIsLoading(0);
+      } else {
+        const hotelList = hotelnames.split(",");
+        console.log(hotelList);
+        setIsLoading(3);
+        // Create an array to store objects with hotel name and first image URL
+        const imageURLsTable = [];
+        for (var i = 0; i < hotelList.length; i++) {
+          const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
+          const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
+          // Create an object with hotel name and first image URL
+          const entry = {
+            name: hotelName,
+            url: list,
+          };
+          // Push the entry into the imageURLsTable array
+          imageURLsTable.push(entry);
           setContent([
             ...content,
             {
@@ -304,7 +196,7 @@ export default function ChatBoot() {
             },
             {
               text: (
-                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md  text-black">
+                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md">
                   {
                     <ReactMarkdown
                       children={removeTextBetweenCurlyBrackets(generatedText)}
@@ -397,37 +289,118 @@ export default function ChatBoot() {
               type: "generated",
             },
           ]);
-          setIsLoading(0);
-          setIsLoadingThread(0);
         }
-      } else {
+        setContent([
+          ...content,
+          {
+            text: (
+              <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
+                {textValue}
+              </div>
+            ),
+            type: "user",
+          },
+          {
+            text: (
+              <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md  text-black">
+                {
+                  <ReactMarkdown
+                    children={removeTextBetweenCurlyBrackets(generatedText)}
+                  />
+                }
+                <div className="mt-4">
+                  {imageURLsTable.length > 0 &&
+                    imageURLsTable.map((hotel) => (
+                      <div
+                        className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
+                        key={hotel.name}
+                      >
+                        {hotel && hotel.name && hotel.name.length > 1 ? (
+                          <div className="w-80 h-40">
+                            <Swiper
+                              pagination={{
+                                type: "fraction",
+                              }}
+                              navigation={true}
+                              modules={[Pagination, Navigation]}
+                              className="mySwiper"
+                            >
+                              {hotel.url && hotel.url.length > 1 ? (
+                                hotel.url.map((url, index) => (
+                                  <SwiperSlide
+                                    className=""
+                                    style={{ fontSize: "10px" }}
+                                  >
+                                    <img
+                                      className="rounded-md object-cover w-80 h-40 z-0"
+                                      src={`https://cf.bstatic.com${url}`}
+                                      alt={`Image ${index}`}
+                                    />
+                                  </SwiperSlide>
+                                ))
+                              ) : (
+                                <SwiperSlide
+                                  className=""
+                                  style={{ fontSize: "10px" }}
+                                >
+                                  <img
+                                    className="rounded-md object-cover w-80 h-40 z-0"
+                                    src={Deafultimages}
+                                  />
+                                </SwiperSlide>
+                              )}
+                            </Swiper>
+                          </div>
+                        ) : (
+                          <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
+                            We encountered an error while retrieving images.
+                            Please try again with the same search query.{" "}
+                          </div>
+                        )}
+                        {hotel.name && hotel.name.length > 1 ? (
+                          <div className="flex flex-col space-y-2">
+                            <div className="font-medium text-base text-black mt-1">
+                              {hotel.name}
+                            </div>
+                            <div className="font-light text-base text-black">
+                              {getTextBetweenPhraseAndDot(
+                                generatedText,
+                                hotel.name
+                              )}
+                            </div>
+                            <div>
+                              <a
+                                className="font-normal text-sm text-blue-500 flex items-center space-x-1"
+                                href={`https://www.google.com/search?q=booking ${hotel.name}`}
+                                target="_blank"
+                              >
+                                <div>open in Booking.com</div>
+                                <img
+                                  width="14"
+                                  height="14"
+                                  src="https://img.icons8.com/ios-glyphs/30/external-link.png"
+                                  alt="external-link"
+                                />
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ),
+            type: "generated",
+          },
+        ]);
         setIsLoading(0);
-        throw new Error("Request failed");
+        setIsLoadingThread(0);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
       setIsLoading(0);
-      setContent([
-        ...content,
-        {
-          text: (
-            <div className="w-full bg-slate-100 p-3 mt-2 rounded-md">
-              {textValue}
-            </div>
-          ),
-          type: "user",
-        },
-        {
-          text: (
-            <div className="w-full bg-red-100 p-3 mt-2 rounded-md  text-black">
-              Error while retrieving response
-            </div>
-          ),
-          type: "generated",
-        },
-      ]);
-      console.error("Error:", error);
-      // Handle errors here
+      throw new Error("Request failed");
     }
   };
 
