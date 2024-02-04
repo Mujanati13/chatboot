@@ -95,7 +95,6 @@ export default function ChatBoot() {
         setShowFirstDiv(false);
       }, 5000);
       scrollToBottom();
-      return () => clearTimeout(timer);
     }
   }, [showFirstDivcount]);
 
