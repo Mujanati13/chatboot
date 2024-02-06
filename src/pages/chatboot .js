@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "../components/header";
 import { Input, message, Spin, Button } from "antd";
-import { SendOutlined, LoadingOutlined } from "@ant-design/icons";
+import { SendOutlined, LoadingOutlined, ApiOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
 import Deafultimages from "../images/default_image.png";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -62,13 +62,13 @@ export default function ChatBoot() {
       setIsLoadingThread(0);
     } catch (error) {}
   }
-
   useEffect(() => {
     Tread();
   }, []);
 
   function handleResi() {
     setContent([]);
+    setTextValue("");
     Tread();
   }
 
@@ -95,6 +95,7 @@ export default function ChatBoot() {
       const timer = setTimeout(() => {
         setShowFirstDiv(false);
       }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [showFirstDivcount]);
 
@@ -102,8 +103,7 @@ export default function ChatBoot() {
     scrollToBottom();
   }, [content]);
 
-  async function generateTextChatgpt() {
-    console.log("start");
+  const generateTextChatgpt = async () => {
     setTextValue("");
     scrollToBottom();
     setContent((prevContent) => [
@@ -117,69 +117,176 @@ export default function ChatBoot() {
         type: "user",
       },
     ]);
+
     setShowFirstDiv(true);
     setIsLoading(1);
     setShowFirstDivcount(Math.random() * 100);
-    console.log("start 2");
-    const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ thread: threadid, text: textValue }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      //display the txt
-      const generatedText = data.result || "No generated text available";
-      setIsLoading(0);
-      setContent([
-        ...content,
-        {
-          text: (
-            <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-              {textValue}
-            </div>
-          ),
-          type: "user",
+    try {
+      const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        {
-          text: (
-            <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
-              {
-                <ReactMarkdown
-                  children={removeTextBetweenCurlyBrackets(generatedText)}
-                />
-              }
-            </div>
-          ),
-          type: "generated",
-        },
-      ]);
-      const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
-      if (
-        hotelnames == "none" ||
-        hotelnames == undefined ||
-        hotelnames == "None"
-      ) {
+        body: JSON.stringify({ thread: threadid, text: textValue }),
+      });
+      if (response.ok) {
+        console.log("end count");
+        const data = await response.json();
+        //display the txt
+        const generatedText = data.result || "No generated text available";
+        setContent([
+          ...content,
+          {
+            text: (
+              <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
+                {textValue}
+              </div>
+            ),
+            type: "user",
+          },
+          {
+            text: (
+              <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md text-black">
+                {
+                  <ReactMarkdown
+                    children={removeTextBetweenCurlyBrackets(generatedText)}
+                  />
+                }
+              </div>
+            ),
+            type: "generated",
+          },
+        ]);
         setIsLoading(0);
-      } else {
-        const hotelList = hotelnames.split(",");
-        console.log(hotelList);
-        setIsLoading(3);
-        // Create an array to store objects with hotel name and first image URL
-        const imageURLsTable = [];
-        for (var i = 0; i < hotelList.length; i++) {
-          const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
-          const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
-          // Create an object with hotel name and first image URL
-          const entry = {
-            name: hotelName,
-            url: list,
-          };
-          // Push the entry into the imageURLsTable array
-          imageURLsTable.push(entry);
+        const hotelnames = await Chatgpt2(generatedText.toString()); //Google start looking for hotel names
+        if (
+          hotelnames == "none" ||
+          hotelnames == undefined ||
+          hotelnames == "None"
+        ) {
+          setIsLoading(0);
+        } else {
+          const hotelList = hotelnames.split(",");
+          console.log(hotelList);
+          setIsLoading(3);
+          // Create an array to store objects with hotel name and first image URL
+          const imageURLsTable = [];
+          for (var i = 0; i < hotelList.length; i++) {
+            const list = await getImages(hotelList[i]); // Assuming hotelnames array exists
+            const hotelName = hotelList[i]; // Assuming hotelnames array exists and has valid hotel names
+            // Create an object with hotel name and first image URL
+            const entry = {
+              name: hotelName,
+              url: list,
+            };
+            // Push the entry into the imageURLsTable array
+            imageURLsTable.push(entry);
+            setContent([
+              ...content,
+              {
+                text: (
+                  <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
+                    {textValue}
+                  </div>
+                ),
+                type: "user",
+              },
+              {
+                text: (
+                  <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md">
+                    {
+                      <ReactMarkdown
+                        children={removeTextBetweenCurlyBrackets(generatedText)}
+                      />
+                    }
+                    <div className="mt-4">
+                      {imageURLsTable.length > 0 &&
+                        imageURLsTable.map((hotel) => (
+                          <div
+                            className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
+                            key={hotel.name}
+                          >
+                            {hotel && hotel.name && hotel.name.length > 1 ? (
+                              <div className="w-80 h-40">
+                                <Swiper
+                                  pagination={{
+                                    type: "fraction",
+                                  }}
+                                  navigation={true}
+                                  modules={[Pagination, Navigation]}
+                                  className="mySwiper"
+                                >
+                                  {hotel.url && hotel.url.length > 1 ? (
+                                    hotel.url.map((url, index) => (
+                                      <SwiperSlide
+                                        className=""
+                                        style={{ fontSize: "10px" }}
+                                      >
+                                        <img
+                                          className="rounded-md object-cover w-80 h-40 z-0"
+                                          src={`https://cf.bstatic.com${url}`}
+                                          alt={`Image ${index}`}
+                                        />
+                                      </SwiperSlide>
+                                    ))
+                                  ) : (
+                                    <SwiperSlide
+                                      className=""
+                                      style={{ fontSize: "10px" }}
+                                    >
+                                      <img
+                                        className="rounded-md object-cover w-80 h-40 z-0"
+                                        src={Deafultimages}
+                                      />
+                                    </SwiperSlide>
+                                  )}
+                                </Swiper>
+                              </div>
+                            ) : (
+                              <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
+                                We encountered an error while retrieving images.
+                                Please try again with the same search query.{" "}
+                              </div>
+                            )}
+                            {hotel.name && hotel.name.length > 1 ? (
+                              <div className="flex flex-col space-y-2">
+                                <div className="font-medium text-base text-black mt-1">
+                                  {hotel.name}
+                                </div>
+                                <div className="font-light text-base text-black">
+                                  {getTextBetweenPhraseAndDot(
+                                    generatedText,
+                                    hotel.name
+                                  )}
+                                </div>
+                                <div>
+                                  <a
+                                    className="font-normal text-sm text-blue-500 flex items-center space-x-1"
+                                    href={`https://www.google.com/search?q=booking ${hotel.name}`}
+                                    target="_blank"
+                                  >
+                                    <div>open in Booking.com</div>
+                                    <img
+                                      width="14"
+                                      height="14"
+                                      src="https://img.icons8.com/ios-glyphs/30/external-link.png"
+                                      alt="external-link"
+                                    />
+                                  </a>
+                                </div>
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ),
+                type: "generated",
+              },
+            ]);
+          }
           setContent([
             ...content,
             {
@@ -192,7 +299,7 @@ export default function ChatBoot() {
             },
             {
               text: (
-                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md">
+                <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md  text-black">
                   {
                     <ReactMarkdown
                       children={removeTextBetweenCurlyBrackets(generatedText)}
@@ -285,120 +392,38 @@ export default function ChatBoot() {
               type: "generated",
             },
           ]);
+          setIsLoading(0);
         }
-        setContent([
-          ...content,
-          {
-            text: (
-              <div className="w-100 m-auto bg-gray-100 p-3 mt-2 rounded-md">
-                {textValue}
-              </div>
-            ),
-            type: "user",
-          },
-          {
-            text: (
-              <div className="w-100 m-auto bg-blue-100 p-3 mt-2 pb-3 rounded-md  text-black">
-                {
-                  <ReactMarkdown
-                    children={removeTextBetweenCurlyBrackets(generatedText)}
-                  />
-                }
-                <div className="mt-4">
-                  {imageURLsTable.length > 0 &&
-                    imageURLsTable.map((hotel) => (
-                      <div
-                        className="md:flex md:items-start md:space-x-4 space-y-3 pb-4 mt-2"
-                        key={hotel.name}
-                      >
-                        {hotel && hotel.name && hotel.name.length > 1 ? (
-                          <div className="w-80 h-40">
-                            <Swiper
-                              pagination={{
-                                type: "fraction",
-                              }}
-                              navigation={true}
-                              modules={[Pagination, Navigation]}
-                              className="mySwiper"
-                            >
-                              {hotel.url && hotel.url.length > 1 ? (
-                                hotel.url.map((url, index) => (
-                                  <SwiperSlide
-                                    className=""
-                                    style={{ fontSize: "10px" }}
-                                  >
-                                    <img
-                                      className="rounded-md object-cover w-80 h-40 z-0"
-                                      src={`https://cf.bstatic.com${url}`}
-                                      alt={`Image ${index}`}
-                                    />
-                                  </SwiperSlide>
-                                ))
-                              ) : (
-                                <SwiperSlide
-                                  className=""
-                                  style={{ fontSize: "10px" }}
-                                >
-                                  <img
-                                    className="rounded-md object-cover w-80 h-40 z-0"
-                                    src={Deafultimages}
-                                  />
-                                </SwiperSlide>
-                              )}
-                            </Swiper>
-                          </div>
-                        ) : (
-                          <div className="bg-red-300 first-letter w-full h-20 p-3 text-black rounded-md">
-                            We encountered an error while retrieving images.
-                            Please try again with the same search query.{" "}
-                          </div>
-                        )}
-                        {hotel.name && hotel.name.length > 1 ? (
-                          <div className="flex flex-col space-y-2">
-                            <div className="font-medium text-base text-black mt-1">
-                              {hotel.name}
-                            </div>
-                            <div className="font-light text-base text-black">
-                              {getTextBetweenPhraseAndDot(
-                                generatedText,
-                                hotel.name
-                              )}
-                            </div>
-                            <div>
-                              <a
-                                className="font-normal text-sm text-blue-500 flex items-center space-x-1"
-                                href={`https://www.google.com/search?q=booking ${hotel.name}`}
-                                target="_blank"
-                              >
-                                <div>open in Booking.com</div>
-                                <img
-                                  width="14"
-                                  height="14"
-                                  src="https://img.icons8.com/ios-glyphs/30/external-link.png"
-                                  alt="external-link"
-                                />
-                              </a>
-                            </div>
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ),
-            type: "generated",
-          },
-        ]);
+      } else {
         setIsLoading(0);
-        setIsLoadingThread(0);
+        throw new Error("Request failed");
       }
-    } else {
+    } catch (error) {
+      console.log(error);
       setIsLoading(0);
-      throw new Error("Request failed");
+      setContent([
+        ...content,
+        {
+          text: (
+            <div className="w-full bg-slate-100 p-3 mt-2 rounded-md">
+              {textValue}
+            </div>
+          ),
+          type: "user",
+        },
+        {
+          text: (
+            <div className="w-full bg-red-100 p-3 mt-2 rounded-md  text-black">
+              Error while retrieving response
+            </div>
+          ),
+          type: "generated",
+        },
+      ]);
+      console.error("Error:", error);
+      // Handle errors here
     }
-  }
+  };
 
   const handleSendRequest = async () => {
     if (textValue.length > 2) {
@@ -431,7 +456,7 @@ export default function ChatBoot() {
         />
       ) : (
         <div>
-          <div className="w-full h-screen p-2 md:pl-60 md:pr-60 overflow-y-auto md:pt-14 pt-10 pb-20">
+          <div className="w-full h-screen p-2 md:pl-60 md:pr-60 overflow-y-auto md:pt-14 pt-10 pb-28">
             {content.length == 0 ? (
               <div>
                 <div className="flex justify-center mt-10">
@@ -506,11 +531,11 @@ export default function ChatBoot() {
                 ) : (
                   <div className="mt-2 border border-gray-200 flex md:flex-row flex-col md:space-y-0 space-y-1 items-start md:space-x-5 md:p-3 p-1">
                     <div className="flex items-center space-x-1">
-                      <img
+                      {/* <img
                         width={40}
                         height={40}
                         src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
-                      />
+                      /> */}
                       <p className="animate-charcter md:hidden">
                         Votre réponse a été générée
                       </p>
@@ -531,7 +556,7 @@ export default function ChatBoot() {
                       Your browser does not support the video tag.
                     </video>
                     <p className="animate-charcter2 md:block hidden">
-                      Votre réponse a été générée <br />
+                      Votre message est en cours de traitement <br />
                     </p>
                   </div>
                 )}
@@ -573,31 +598,41 @@ export default function ChatBoot() {
           </div>
         </div>
       )}
-      <div className="z-50  fixed bottom-0 w-full h-16 pr-2 pl-2 md:pl-60 md:pr-64 bg-white">
-        <div className="flex items-center space-x-2">
+      <div className="z-50 fixed bottom-0 w-full h-16 pr-2 pl-2 md:pl-60 md:pr-64 bg-white">
+        <div className="flex justify-center pb-2">
+          {content.length > 0 ? (
+            <Button
+              prefix={<ApiOutlined />}
+              disabled={isLoading || isLoadingThread == 1}
+              onClick={handleResi}
+              loading={false}
+              className="fixed bottom-16 bg-white shadow-md opacity-90 h-10 text-sm rounded-3xl text-black cursor-pointer border border-gray-400"
+            >
+              Réinitialiser
+            </Button>
+          ) : (
+            ""
+          )}
+        </div>
+        <div className="">
           <Input
             classNames="shadow-lg"
             onKeyPress={(e) => e.key === "Enter" && handleSendRequest()}
-            disabled={isLoading || isLoadingThread == 1}
             value={textValue}
             onChange={handleText}
             className="h-10 text-lg"
             placeholder="Type something..."
             suffix={
-              <SendOutlined
-                onClick={handleSendRequest}
-                className="cursor-pointer"
-              />
+              isLoading == 1 ? (
+                <Spin />
+              ) : (
+                <SendOutlined
+                  onClick={handleSendRequest}
+                  className="cursor-pointer"
+                />
+              )
             }
           />
-          <Button
-            disabled={isLoading || isLoadingThread == 1}
-            onClick={handleResi}
-            loading={false}
-            className="h-10 md:text-lg hover:border-gray-600 bg-green-300 text-white cursor-pointer border border-gray-400"
-          >
-            Réinitialiser
-          </Button>
         </div>
       </div>
     </div>
