@@ -47,7 +47,7 @@ export default function ChatBoot() {
   async function Tread() {
     setIsLoadingThread(1);
     try {
-      const response = await fetch("http://localhost:3001/get-thread", {
+      const response = await fetch("https://chatbot-api-v1.onrender.com/get-thread", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,11 +56,14 @@ export default function ChatBoot() {
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
+        setIsLoadingThread(1);
       }
       const responseData = await response.json();
       setthreadid(responseData);
       setIsLoadingThread(0);
-    } catch (error) {}
+    } catch (error) {
+      setIsLoadingThread(0);
+    }
   }
   useEffect(() => {
     Tread();
@@ -122,7 +125,7 @@ export default function ChatBoot() {
     setIsLoading(1);
     setShowFirstDivcount(Math.random() * 100);
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/chat`, {
+      const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
