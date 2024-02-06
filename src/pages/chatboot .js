@@ -524,7 +524,7 @@ export default function ChatBoot() {
                         src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                       />
                       <div className="md:animate-charcter animate-charcter text-black mt-5 animate-pulse">
-                        <span>Votre réponse a été générée</span>
+                        <span>Votre message est en cours de traitement</span>
                       </div>
                     </div>
                   </div>
