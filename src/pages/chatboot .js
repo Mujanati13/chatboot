@@ -47,7 +47,7 @@ export default function ChatBoot() {
   async function Tread() {
     setIsLoadingThread(1);
     try {
-      const response = await fetch("https://chatbot-api-v1.onrender.com/get-thread", {
+      const response = await fetch("http://localhost:3001/get-thread", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export default function ChatBoot() {
     setIsLoading(1);
     setShowFirstDivcount(Math.random() * 100);
     try {
-      const response = await fetch(`https://chatbot-api-v1.onrender.com/api/v1/chat`, {
+      const response = await fetch(`http://localhost:3001/api/v1/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -537,7 +537,7 @@ export default function ChatBoot() {
                         src="https://www.gstatic.com/lamda/images/sparkle_resting_v2_1ff6f6a71f2d298b1a31.gif"
                       /> */}
                       <p className="animate-charcter md:hidden">
-                        Votre réponse a été générée
+                        Votre message est en cours de traitement
                       </p>
                     </div>
                     {loading && <div className="loading-animation"></div>}
