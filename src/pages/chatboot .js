@@ -429,7 +429,7 @@ export default function ChatBoot() {
   };
 
   const handleSendRequest = async () => {
-    if (textValue.length > 2) {
+    if (textValue.length > -0) {
       if (currentch == "0") {
       } else if (currentch == "1") {
         await generateTextChatgpt();
